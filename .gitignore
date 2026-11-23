@@ -226,3 +226,5 @@ __marimo__/
 #added ignores
 data/*
 !data/.gitkeep
+features/*
+!features/.gitkeep

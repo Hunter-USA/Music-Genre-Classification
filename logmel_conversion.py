@@ -35,13 +35,14 @@ def load_tracks(matadata_dir: Path, subset: str) -> pd.DataFrame:
     return df
 
 def mp3_to_logmel(audio_path: Path) -> np.ndarray:
-    y, _ = librosa.load(audio_path, sr=SR, mono=True, duration=DURATION, power=2.0)
+    y, _ = librosa.load(audio_path, sr=SR, mono=True, duration=DURATION)
     mel = librosa.feature.melspectrogram(
         y=y,
         sr=SR,
         n_fft=N_FFT,
         hop_length=HOP_LENGTH,
         n_mels=N_MELS,
+        power=2.0,
     )
     log_mel = librosa.power_to_db(mel, ref=np.max)
 
