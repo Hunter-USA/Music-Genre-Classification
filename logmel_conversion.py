@@ -104,7 +104,7 @@ def main() -> None:
         for tid in tqdm(tracks.index)
     )
 
-    ok = dict(results)
+    ok = dict(results)  # pyright: ignore
     tracks["ok"] = tracks.index.map(ok)
     tracks["feature_path"] = [
         str(args.out_dir / f"{t:06d}"[:3] / f"{t:06d}.npy") for t in tracks.index
