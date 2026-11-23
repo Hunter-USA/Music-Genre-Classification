@@ -46,3 +46,21 @@ def mp3_to_logmel(audio_path: Path) -> np.ndarray:
         pad = N_FRAMES - log_mel.shape[1]
         log_mel = np.pad(log_mel, ((0, 0), (0, pad)), constant_values=log_mel.min())
     return log_mel[:, :N_FRAMES].astype(np.float32)
+
+
+def process(track_id: int, audio_dir: Path, output_dir: Path) -> tuple[int, bool]:
+    src = get_audio_path(audio_dir, track_id)
+    dst = output_dir / src.parent.name / f"{src.stem}.npy"
+    if dst.exists():
+        return track_id, True
+    try:
+        log_mel = mp3_to_logmel(src)
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        temp_path = dst.with_suffix(".npy.tmp")
+        with open(temp_path, "wb") as f:    
+            np.save(f, log_mel)
+        temp_path.replace(dst)
+        return track_id, True
+    except Exception as e:
+        print(f"Error processing track {track_id}: {e}")
+        return track_id, False
