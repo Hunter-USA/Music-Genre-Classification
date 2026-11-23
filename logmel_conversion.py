@@ -70,7 +70,6 @@ def process(track_id: int, audio_dir: Path, output_dir: Path) -> tuple[int, bool
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--audio-dir", type=Path, default=Path("data/fma_small"))
-    parser.add_argument("--audio-dir", type=Path, default=Path("data/fma_small"))
     parser.add_argument("--metadata-dir", type=Path, default=Path("data/fma_metadata"))
     parser.add_argument("--subset", choices=SUBSETS, default="small")
     parser.add_argument("--out-dir", type=Path, default=Path("features/fma_small"))
