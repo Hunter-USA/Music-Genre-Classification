@@ -24,8 +24,8 @@ def get_audio_path(audio_dir: Path, track_id: int) -> Path:
     tid = f"{track_id:06d}"
     return audio_dir / tid[:3] / f"{tid}.mp3"
 
-def load_tracks(matadata_dir: Path, subset: str) -> pd.DataFrame:
-    tracks = pd.read_csv(matadata_dir / "tracks.csv", index_col=0, header=[0, 1])
+def load_tracks(metadata_dir: Path, subset: str) -> pd.DataFrame:
+    tracks = pd.read_csv(metadata_dir / "tracks.csv", index_col=0, header=[0, 1])
     tracks = tracks[tracks[("set", "subset")].isin(SUBSETS[subset])]
     df = pd.DataFrame({
         "genre_top": tracks[("track", "genre_top")],
@@ -68,7 +68,7 @@ def process(track_id: int, audio_dir: Path, output_dir: Path) -> tuple[int, bool
         print(f"Error processing track {track_id}: {e}")
         return track_id, False
 
-def compute_statistics(manifest: pd.DataFrane, out_path: Path) -> None:
+def compute_statistics(manifest: pd.DataFrame, out_path: Path) -> None:
     train = manifest[manifest["ok"] & (manifest["split"] == "training")]
     sum = np.zeros(N_MELS, dtype=np.float64)
     squared_sum = np.zeros(N_MELS, dtype=np.float64)
