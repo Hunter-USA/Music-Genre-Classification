@@ -1,6 +1,8 @@
 
 from pathlib import Path
 import pandas as pd
+import numpy as np
+import librosa
 
 SR = 22050
 N_MELS = 128
@@ -28,3 +30,19 @@ def load_tracks(matadata_dir: Path, subset: str) -> pd.DataFrame:
     })
     df.index.name = "track_id"
     return df
+
+def mp3_to_logmel(audio_path: Path) -> np.ndarray:
+    y, _ = librosa.load(audio_path, sr=SR, mono=True, duration=DURATION, power=2.0)
+    mel = librosa.feature.melspectrogram(
+        y=y,
+        sr=SR,
+        n_fft=N_FFT,
+        hop_length=HOP_LENGTH,
+        n_mels=N_MELS,
+    )
+    log_mel = librosa.power_to_db(mel, ref=np.max)
+
+    if log_mel.shape[1] < N_FRAMES:
+        pad = N_FRAMES - log_mel.shape[1]
+        log_mel = np.pad(log_mel, ((0, 0), (0, pad)), constant_values=log_mel.min())
+    return log_mel[:, :N_FRAMES].astype(np.float32)
