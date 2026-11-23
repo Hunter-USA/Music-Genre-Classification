@@ -68,6 +68,25 @@ def process(track_id: int, audio_dir: Path, output_dir: Path) -> tuple[int, bool
         print(f"Error processing track {track_id}: {e}")
         return track_id, False
 
+def compute_statistics(manifest: pd.DataFrane, out_path: Path) -> None:
+    train = manifest[manifest["ok"] & (manifest["split"] == "training")]
+    sum = np.zeros(N_MELS, dtype=np.float64)
+    squared_sum = np.zeros(N_MELS, dtype=np.float64)
+    n = 0
+
+    for path in tqdm(train["feature_path"], desc="mel statistics"):
+        x = np.load(path).astype(np.float64)
+        sum += x.sum(axis=1)
+        squared_sum += (x ** 2).sum(axis=1)
+        n += x.shape[1]
+
+    mean = sum / n
+    std = np.sqrt(squared_sum / n - mean ** 2)
+    np.savez(out_path, mean=mean.astype(np.float32), std=std.astype(np.float32),
+             n_tracks=len(train), n_frames=n)
+    print(f"Saved per-bin stats from {len(train)} training tracks: {out_path}")
+
+    
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--audio-dir", type=Path, default=Path("data/fma_small"))
@@ -92,8 +111,11 @@ def main() -> None:
     ]
     args.out_dir.mkdir(parents=True, exist_ok=True)
     tracks.to_csv(args.out_dir / "manifest.csv")
+
     print(f"Done. {tracks['ok'].sum()} ok, {(~tracks['ok']).sum()} failed. "
           f"Manifest: {args.out_dir / 'manifest.csv'}")
+
+    compute_statistics(tracks, args.out_dir / "mel_stats.npz")
 
 if __name__ == "__main__":
     main()
