@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 import librosa
 import argparse
-import tqdm
+from tqdm import tqdm
 
 SR = 22050
 N_MELS = 128

@@ -75,6 +75,8 @@ def main() -> None:
                         choices=list(ARCHIVES), help="which archives to fetch")
     args = parser.parse_args()
 
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+
     for name in args.subsets:
         filename, expected_hash = ARCHIVES[name]
         zip_path = DATA_DIR / filename
