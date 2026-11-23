@@ -1,8 +1,11 @@
 
 from pathlib import Path
+from joblib import Parallel, delayed
 import pandas as pd
 import numpy as np
 import librosa
+import argparse
+import tqdm
 
 SR = 22050
 N_MELS = 128
@@ -47,7 +50,6 @@ def mp3_to_logmel(audio_path: Path) -> np.ndarray:
         log_mel = np.pad(log_mel, ((0, 0), (0, pad)), constant_values=log_mel.min())
     return log_mel[:, :N_FRAMES].astype(np.float32)
 
-
 def process(track_id: int, audio_dir: Path, output_dir: Path) -> tuple[int, bool]:
     src = get_audio_path(audio_dir, track_id)
     dst = output_dir / src.parent.name / f"{src.stem}.npy"
@@ -64,3 +66,34 @@ def process(track_id: int, audio_dir: Path, output_dir: Path) -> tuple[int, bool
     except Exception as e:
         print(f"Error processing track {track_id}: {e}")
         return track_id, False
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--audio-dir", type=Path, default=Path("data/fma_small"))
+    parser.add_argument("--audio-dir", type=Path, default=Path("data/fma_small"))
+    parser.add_argument("--metadata-dir", type=Path, default=Path("data/fma_metadata"))
+    parser.add_argument("--subset", choices=SUBSETS, default="small")
+    parser.add_argument("--out-dir", type=Path, default=Path("features/fma_small"))
+    parser.add_argument("--jobs", type=int, default=-1)
+    args = parser.parse_args()
+
+    tracks = load_tracks(args.metadata_dir, args.subset)
+    print(f"Loaded {len(tracks)} tracks for subset '{args.subset}'")
+
+    results = Parallel(n_jobs=args.jobs)(
+        delayed(process)(tid, args.audio_dir, args.out_dir)
+        for tid in tqdm(tracks.index)
+    )
+
+    ok = dict(results)
+    tracks["ok"] = tracks.index.map(ok)
+    tracks["feature_path"] = [
+        str(args.out_dir / f"{t:06d}"[:3] / f"{t:06d}.npy") for t in tracks.index
+    ]
+    args.out_dir.mkdir(parents=True, exist_ok=True)
+    tracks.to_csv(args.out_dir / "manifest.csv")
+    print(f"Done. {tracks['ok'].sum()} ok, {(~tracks['ok']).sum()} failed. "
+          f"Manifest: {args.out_dir / 'manifest.csv'}")
+
+if __name__ == "__main__":
+    main()
