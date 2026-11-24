@@ -41,6 +41,16 @@ class FMADataset(Dataset):
         )
 
 def make_dataloader(features_dir: str | Path, batch_size: int = 64, num_workers: int = 4) -> tuple[DataLoader, DataLoader, DataLoader, list[str]]:
+    """Create data loaders for the FMA dataset. Only thing that should be called in this file is this function.
+
+    Args:
+        features_dir (str | Path): Directory containing the FMA dataset features and manifest.
+        batch_size (int, optional): Batch size for the data loaders. Defaults to 64.
+        num_workers (int, optional): Number of worker processes for the data loaders. Defaults to 4.
+
+    Returns:
+        tuple[DataLoader, DataLoader, DataLoader, list[str]]: Training, validation, and test data loaders, and the list of genres.
+    """
     features_dir = Path(features_dir)
     manifest = pd.read_csv(features_dir / "manifest.csv", index_col=0)
     stats_path = features_dir / "mel_stats.npz"
