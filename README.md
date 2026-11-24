@@ -38,7 +38,8 @@ After downloading, `data/` looks like:
 ```
 data/
 ├── fma_metadata/
-│   └── tracks.csv ...
+│   ├── tracks.csv
+│   └── ...
 └── fma_small/
     ├── 000/
     │   ├── 000002.mp3
