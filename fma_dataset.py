@@ -72,7 +72,8 @@ def make_dataloader(features_dir: str | Path, batch_size: int = 64, num_workers:
 if __name__ == "__main__":
     train_loader, val_loader, test_loader, genres = make_dataloader("features/fma_small")
     print("Genres:", genres)
-    #test a single batch from the training loader
+    # test a single batch from the training loader, shape should be (batch_size, 1, num_mel_bins, time)
+    # for 3 seconds of audio of 128 mel bins and a batch of 64, that should be (64, 1, 128, 129)
     x, y, tid = next(iter(train_loader))
     print("Batch:", tuple(x.shape), y[:16].tolist())
     print(f"Batch mean {x.mean():.3f}, std {x.std():.3f})")
