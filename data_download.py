@@ -4,9 +4,9 @@ Script to download data for the Music Genre Classification project.
 
 Usage:
     python data_download.py                   # metadata + small (default)
-    python data_download.py metadata medium
-    python data_download.py metadata large
-    python data_download.py metadata full
+    python data_download.py --subsets metadata medium
+    python data_download.py --subsets metadata large
+    python data_download.py --subsets metadata full
 """
 
 
@@ -71,13 +71,14 @@ def extract(zip_path: Path, out_dir: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("subsets", nargs="*", default=["metadata", "small"],
+    parser.add_argument("--subsets", nargs="*", default=["metadata", "small"],
                         choices=list(ARCHIVES), help="which archives to fetch")
     args = parser.parse_args()
 
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    for name in args.subsets:
+    subsets = list(dict.fromkeys(args.subsets))
+    for name in subsets:
         filename, expected_hash = ARCHIVES[name]
         zip_path = DATA_DIR / filename
         out_marker = DATA_DIR / filename.removesuffix(".zip")

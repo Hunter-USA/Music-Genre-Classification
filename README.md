@@ -18,10 +18,10 @@ PyTorch is not in `requirements.txt` because the right build depends on your har
 [data_download.py](data_download.py) downloads the FMA archives into `data/`, checks each one's SHA-1 checksum, extracts it, and deletes the zip. Interrupted downloads resume where they stopped, and any subset that has already been extracted is skipped.
 
 ```bash
-python data_download.py                    # metadata + small (default)
-python data_download.py metadata medium
-python data_download.py metadata large
-python data_download.py metadata full
+python data_download.py                   # metadata + small (default)
+python data_download.py --subsets metadata medium
+python data_download.py --subsets metadata large
+python data_download.py --subsets metadata full
 ```
 
 | Subset   | Tracks  | Genres | Download size |
