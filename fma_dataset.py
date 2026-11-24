@@ -40,13 +40,14 @@ class FMADataset(Dataset):
                 self.tracks[t]
         )
 
-def make_dataloader(features_dir: str | Path, batch_size: int = 64, num_workers: int = 4) -> tuple[DataLoader, DataLoader, DataLoader, list[str]]:
+def make_dataloader(features_dir: str | Path, batch_size: int = 64, num_workers: int = 4, seed: int = 42) -> tuple[DataLoader, DataLoader, DataLoader, list[str]]:
     """Create data loaders for the FMA dataset. Only thing that should be called in this file is this function.
 
     Args:
         features_dir (str | Path): Directory containing the FMA dataset features and manifest.
         batch_size (int, optional): Batch size for the data loaders. Defaults to 64.
         num_workers (int, optional): Number of worker processes for the data loaders. Defaults to 4.
+        seed (int, optional): Random seed for reproducibility. Defaults to 42.
 
     Returns:
         tuple[DataLoader, DataLoader, DataLoader, list[str]]: Training, validation, and test data loaders, and the list of genres.
@@ -57,11 +58,12 @@ def make_dataloader(features_dir: str | Path, batch_size: int = 64, num_workers:
     train_genres = manifest.loc[manifest["ok"] & (manifest["split"] == "training"), "genre_top"].dropna()
     genres = sorted(train_genres.unique())
     genre_to_index = {g: i for i, g in enumerate(genres)}
+    generator = torch.Generator().manual_seed(seed)
 
     def get_loader(split: str, shuffle: bool) -> DataLoader:
         ds = FMADataset(manifest, split, stats_path, genre_to_index)
         print(f"{split}: {len(ds)} segments")
-        return DataLoader(ds, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, pin_memory=torch.cuda.is_available(), persistent_workers=num_workers > 0)
+        return DataLoader(ds, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, pin_memory=torch.cuda.is_available(), persistent_workers=num_workers > 0, generator=generator)
 
     return (get_loader("training", shuffle=True),
                 get_loader("validation", shuffle=False),
