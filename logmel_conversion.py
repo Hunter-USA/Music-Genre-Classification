@@ -1,3 +1,11 @@
+"""
+Script to convert MP3 audio files to log-mel spectrograms.
+
+Usage:
+    python logmel_conversion.py --audio-dir data/fma_small --metadata-dir data/fma_metadata --subset small --out-dir features/fma_small --jobs -1
+    python logmel_conversion.py --audio-dir data/fma_medium --metadata-dir data/fma_metadata --subset medium --out-dir features/fma_medium --jobs -1
+    python logmel_conversion.py --audio-dir data/fma_large --metadata-dir data/fma_metadata --subset large --out-dir features/fma_large --jobs -1  
+"""
 
 from pathlib import Path
 from joblib import Parallel, delayed
